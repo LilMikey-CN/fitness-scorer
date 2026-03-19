@@ -12,9 +12,11 @@
     "app": {
         "windows": [
             {
-                "title": "fitness-scorer",
-                "width": 800,
-                "height": 1000
+                "title": "国民体质测定评分系统",
+                "width": 1280,
+                "height": 800,
+                "minWidth": 1024,
+                "minHeight": 700
             }
         ],
         "security": {

@@ -1,5 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ManualEntry from "@/components/ManualEntry";
+import BatchImport from "@/components/BatchImport";
 
 export default function App() {
   return (
@@ -25,9 +26,7 @@ export default function App() {
           </TabsContent>
 
           <TabsContent value="batch">
-            <div className="flex items-center justify-center h-48 rounded-lg border border-dashed">
-              <p className="text-muted-foreground text-sm">批量导入功能开发中…</p>
-            </div>
+            <BatchImport />
           </TabsContent>
         </Tabs>
       </main>
