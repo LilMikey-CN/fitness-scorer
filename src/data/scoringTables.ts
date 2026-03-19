@@ -372,9 +372,73 @@ export const HW_F_40_49: HeightWeightRow[] = [
 ];
 
 // ───────────────────────────────────────────────────────────────────────────────
-// 1-7  50–59 岁男性（与40-49男性数据相同，PDF显示两张表一致）
+// 1-7  50–59 岁男性
+//
+// ⚠️  此表与 40-49 岁男性表【不同】，逐行对比差异如下：
+//   • 142–159 cm：w1Light（偏轻界）和 w5Max（5分正常上限）均更高
+//   • 160–186 cm：w1Light 相同，w5Max 约高 0.1–1.0 kg
+//   • 187–193 cm：与 40-49 男完全一致
 // ───────────────────────────────────────────────────────────────────────────────
-export const HW_M_50_59: HeightWeightRow[] = HW_M_40_49.map(r => ({ ...r }));
+export const HW_M_50_59: HeightWeightRow[] = [
+  // ── 142–159 cm：w1Light 与 w5Max 均与 40-49 男不同 ──
+  { heightMin: 142.0, heightMax: 142.9, w1Light: 37.5, w3Light: 39.0, w5Max: 52.9, w3Heavy: 55.2 },
+  { heightMin: 143.0, heightMax: 143.9, w1Light: 38.2, w3Light: 39.8, w5Max: 53.6, w3Heavy: 55.9 },
+  { heightMin: 144.0, heightMax: 144.9, w1Light: 38.9, w3Light: 40.3, w5Max: 54.3, w3Heavy: 56.8 },
+  { heightMin: 145.0, heightMax: 145.9, w1Light: 39.6, w3Light: 41.0, w5Max: 55.0, w3Heavy: 57.7 },
+  // [ERRATA] PDF 146cm行：1分"<40.1"，3分"41.0-41.5"，两者之间有空隙（40.1-40.9未定义），原文保留
+  { heightMin: 146.0, heightMax: 146.9, w1Light: 40.1, w3Light: 41.6, w5Max: 55.7, w3Heavy: 58.5 },
+  { heightMin: 147.0, heightMax: 147.9, w1Light: 41.1, w3Light: 42.2, w5Max: 56.5, w3Heavy: 59.3 },
+  { heightMin: 148.0, heightMax: 148.9, w1Light: 41.6, w3Light: 42.8, w5Max: 57.3, w3Heavy: 60.1 },
+  { heightMin: 149.0, heightMax: 149.9, w1Light: 42.1, w3Light: 43.4, w5Max: 58.2, w3Heavy: 60.9 },
+  { heightMin: 150.0, heightMax: 150.9, w1Light: 42.8, w3Light: 44.1, w5Max: 59.0, w3Heavy: 61.8 },
+  { heightMin: 151.0, heightMax: 151.9, w1Light: 43.6, w3Light: 44.7, w5Max: 59.9, w3Heavy: 62.6 },
+  { heightMin: 152.0, heightMax: 152.9, w1Light: 44.3, w3Light: 45.4, w5Max: 60.7, w3Heavy: 63.5 },
+  { heightMin: 153.0, heightMax: 153.9, w1Light: 45.0, w3Light: 46.2, w5Max: 61.7, w3Heavy: 64.5 },
+  { heightMin: 154.0, heightMax: 154.9, w1Light: 45.7, w3Light: 46.9, w5Max: 62.8, w3Heavy: 65.6 },
+  { heightMin: 155.0, heightMax: 155.9, w1Light: 46.3, w3Light: 47.7, w5Max: 63.8, w3Heavy: 66.6 },
+  { heightMin: 156.0, heightMax: 156.9, w1Light: 46.9, w3Light: 48.4, w5Max: 64.9, w3Heavy: 67.6 },
+  { heightMin: 157.0, heightMax: 157.9, w1Light: 47.4, w3Light: 49.0, w5Max: 65.8, w3Heavy: 68.6 },
+  { heightMin: 158.0, heightMax: 158.9, w1Light: 48.0, w3Light: 49.8, w5Max: 66.8, w3Heavy: 69.7 },
+  { heightMin: 159.0, heightMax: 159.9, w1Light: 48.5, w3Light: 50.6, w5Max: 67.3, w3Heavy: 70.7 },
+  // ── 160–186 cm：w1Light 与 40-49 男相同，仅 w5Max 不同 ──
+  { heightMin: 160.0, heightMax: 160.9, w1Light: 49.0, w3Light: 51.4, w5Max: 68.4, w3Heavy: 71.8 },
+  { heightMin: 161.0, heightMax: 161.9, w1Light: 49.6, w3Light: 52.3, w5Max: 69.7, w3Heavy: 72.8 },
+  { heightMin: 162.0, heightMax: 162.9, w1Light: 50.2, w3Light: 53.2, w5Max: 70.9, w3Heavy: 73.7 },
+  { heightMin: 163.0, heightMax: 163.9, w1Light: 50.7, w3Light: 54.0, w5Max: 72.0, w3Heavy: 74.7 },
+  { heightMin: 164.0, heightMax: 164.9, w1Light: 51.3, w3Light: 54.7, w5Max: 73.0, w3Heavy: 75.6 },
+  { heightMin: 165.0, heightMax: 165.9, w1Light: 51.9, w3Light: 55.2, w5Max: 73.9, w3Heavy: 76.5 },
+  { heightMin: 166.0, heightMax: 166.9, w1Light: 52.4, w3Light: 56.0, w5Max: 74.8, w3Heavy: 77.4 },
+  { heightMin: 167.0, heightMax: 167.9, w1Light: 52.9, w3Light: 56.6, w5Max: 75.6, w3Heavy: 78.3 },
+  { heightMin: 168.0, heightMax: 168.9, w1Light: 53.5, w3Light: 57.3, w5Max: 76.5, w3Heavy: 79.3 },
+  { heightMin: 169.0, heightMax: 169.9, w1Light: 54.2, w3Light: 57.9, w5Max: 77.3, w3Heavy: 80.4 },
+  { heightMin: 170.0, heightMax: 170.9, w1Light: 55.0, w3Light: 58.7, w5Max: 78.2, w3Heavy: 81.3 },
+  { heightMin: 171.0, heightMax: 171.9, w1Light: 55.8, w3Light: 59.6, w5Max: 79.1, w3Heavy: 82.4 },
+  { heightMin: 172.0, heightMax: 172.9, w1Light: 56.4, w3Light: 60.5, w5Max: 80.0, w3Heavy: 83.5 },
+  { heightMin: 173.0, heightMax: 173.9, w1Light: 57.0, w3Light: 61.3, w5Max: 81.0, w3Heavy: 84.5 },
+  { heightMin: 174.0, heightMax: 174.9, w1Light: 57.7, w3Light: 62.2, w5Max: 82.0, w3Heavy: 85.5 },
+  { heightMin: 175.0, heightMax: 175.9, w1Light: 58.3, w3Light: 63.0, w5Max: 82.9, w3Heavy: 86.5 },
+  { heightMin: 176.0, heightMax: 176.9, w1Light: 58.9, w3Light: 63.8, w5Max: 84.0, w3Heavy: 87.4 },
+  // [ERRATA] PDF 177cm行：1分下限原文">85.5"，应为">88.5"（印刷错误），w3Heavy 取 88.5
+  { heightMin: 177.0, heightMax: 177.9, w1Light: 59.5, w3Light: 64.4, w5Max: 85.1, w3Heavy: 88.5 },
+  { heightMin: 178.0, heightMax: 178.9, w1Light: 60.1, w3Light: 65.1, w5Max: 86.2, w3Heavy: 89.5 },
+  { heightMin: 179.0, heightMax: 179.9, w1Light: 60.7, w3Light: 65.8, w5Max: 87.2, w3Heavy: 90.5 },
+  { heightMin: 180.0, heightMax: 180.9, w1Light: 61.3, w3Light: 66.4, w5Max: 88.2, w3Heavy: 91.5 },
+  { heightMin: 181.0, heightMax: 181.9, w1Light: 61.9, w3Light: 67.1, w5Max: 89.1, w3Heavy: 92.6 },
+  // [ERRATA] PDF 182cm行：3分(重)下限"90.1"与5分上限"90.1"相同，原文保留
+  { heightMin: 182.0, heightMax: 182.9, w1Light: 62.5, w3Light: 68.0, w5Max: 90.1, w3Heavy: 93.6 },
+  { heightMin: 183.0, heightMax: 183.9, w1Light: 63.3, w3Light: 68.8, w5Max: 91.0, w3Heavy: 94.6 },
+  { heightMin: 184.0, heightMax: 184.9, w1Light: 63.8, w3Light: 69.5, w5Max: 91.9, w3Heavy: 95.7 },
+  { heightMin: 185.0, heightMax: 185.9, w1Light: 64.4, w3Light: 70.2, w5Max: 92.9, w3Heavy: 96.7 },
+  { heightMin: 186.0, heightMax: 186.9, w1Light: 65.1, w3Light: 71.0, w5Max: 93.9, w3Heavy: 97.8 },
+  // ── 187–193 cm：与 40-49 男完全一致 ──
+  { heightMin: 187.0, heightMax: 187.9, w1Light: 65.7, w3Light: 71.8, w5Max: 94.8, w3Heavy: 97.9 },
+  { heightMin: 188.0, heightMax: 188.9, w1Light: 66.3, w3Light: 72.6, w5Max: 95.8, w3Heavy: 99.0 },
+  { heightMin: 189.0, heightMax: 189.9, w1Light: 67.0, w3Light: 73.4, w5Max: 96.9, w3Heavy: 100.2 },
+  { heightMin: 190.0, heightMax: 190.9, w1Light: 67.6, w3Light: 74.2, w5Max: 97.9, w3Heavy: 101.4 },
+  { heightMin: 191.0, heightMax: 191.9, w1Light: 68.3, w3Light: 75.0, w5Max: 99.0, w3Heavy: 102.6 },
+  { heightMin: 192.0, heightMax: 192.9, w1Light: 68.9, w3Light: 75.9, w5Max: 100.2, w3Heavy: 103.8 },
+  { heightMin: 193.0, heightMax: 193.9, w1Light: 69.5, w3Light: 76.7, w5Max: 101.2, w3Heavy: 105.0 },
+];
 
 // ───────────────────────────────────────────────────────────────────────────────
 // 1-8  50–59 岁女性
