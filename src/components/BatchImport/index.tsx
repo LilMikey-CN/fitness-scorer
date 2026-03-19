@@ -33,35 +33,27 @@ interface TableRow {
   age?: number;
   ageGroup?: string;
   heightWeightScore?: number | null;
-  lungCapacityScore?: number;
-  stepIndexScore?: number;
-  gripStrengthScore?: number;
+  lungCapacityScore?: number | null;
+  stepIndexScore?: number | null;
+  gripStrengthScore?: number | null;
   pushupsScore?: number | null;
   situpsScore?: number | null;
   verticalJumpScore?: number | null;
-  sitAndReachScore?: number;
-  reactionTimeScore?: number;
-  singleLegStandScore?: number;
-  totalScore?: number;
+  sitAndReachScore?: number | null;
+  reactionTimeScore?: number | null;
+  singleLegStandScore?: number | null;
+  totalScore?: number | null;
   overallGrade?: string | null;
   warnings?: string[];
-  isOlder?: boolean;
-  isMale?: boolean;
+  pushupsApplicable?: boolean;
+  situpsApplicable?: boolean;
+  verticalJumpApplicable?: boolean;
 }
 
-const OLDER_GROUPS = new Set(["40-44", "45-49", "50-54", "55-59"]);
-
 function toTableRow(row: BatchResult["rows"][number]): TableRow {
-  const base: TableRow = {
-    rowIndex: row.rowIndex,
-    success: row.success,
-    error: row.error,
-  };
+  const base: TableRow = { rowIndex: row.rowIndex, success: row.success, error: row.error };
   if (!row.success || !row.result) return base;
-
   const r = row.result;
-  const isOlder = OLDER_GROUPS.has(r.ageGroup);
-  const isMale = r.input.gender === 1;
   return {
     ...base,
     name: r.input.name,
@@ -81,8 +73,9 @@ function toTableRow(row: BatchResult["rows"][number]): TableRow {
     totalScore: r.totalScore,
     overallGrade: r.overallGrade,
     warnings: r.warnings,
-    isOlder,
-    isMale,
+    pushupsApplicable: r.pushupsApplicable,
+    situpsApplicable: r.situpsApplicable,
+    verticalJumpApplicable: r.verticalJumpApplicable,
   };
 }
 
@@ -103,11 +96,10 @@ const GRADE_STYLES: Record<string, string> = {
   "四级(不合格)": "bg-red-100 text-red-700",
 };
 
-function ScoreCell({ score, applicable }: { score: number | null | undefined; applicable: boolean }) {
-  if (!applicable) return <span className="text-muted-foreground">—</span>;
+function ScoreCell({ score }: { score: number | null | undefined }) {
   if (score === undefined) return null;
-  if (score === null || score === 0)
-    return <span className="text-xs text-muted-foreground">无分</span>;
+  if (score === null) return <span className="text-muted-foreground">—</span>;
+  if (score === 0) return <span className="text-xs text-muted-foreground">无分</span>;
   return (
     <span className={`text-xs font-semibold ${SCORE_COLORS[score] ?? ""}`}>
       {score}
@@ -174,7 +166,7 @@ const COLUMNS = [
     cell: (i) => {
       const row = i.row.original;
       if (!row.success) return null;
-      return <ScoreCell score={row.heightWeightScore} applicable={true} />;
+      return <ScoreCell score={row.heightWeightScore} />;
     },
   }),
   ch.display({
@@ -184,7 +176,7 @@ const COLUMNS = [
     cell: (i) => {
       const row = i.row.original;
       if (!row.success) return null;
-      return <ScoreCell score={row.lungCapacityScore} applicable={true} />;
+      return <ScoreCell score={row.lungCapacityScore} />;
     },
   }),
   ch.display({
@@ -194,7 +186,7 @@ const COLUMNS = [
     cell: (i) => {
       const row = i.row.original;
       if (!row.success) return null;
-      return <ScoreCell score={row.stepIndexScore} applicable={true} />;
+      return <ScoreCell score={row.stepIndexScore} />;
     },
   }),
   ch.display({
@@ -204,7 +196,7 @@ const COLUMNS = [
     cell: (i) => {
       const row = i.row.original;
       if (!row.success) return null;
-      return <ScoreCell score={row.gripStrengthScore} applicable={true} />;
+      return <ScoreCell score={row.gripStrengthScore} />;
     },
   }),
   ch.display({
@@ -214,12 +206,7 @@ const COLUMNS = [
     cell: (i) => {
       const row = i.row.original;
       if (!row.success) return null;
-      return (
-        <ScoreCell
-          score={row.pushupsScore}
-          applicable={!row.isOlder! && !!row.isMale}
-        />
-      );
+      return <ScoreCell score={row.pushupsScore} />;
     },
   }),
   ch.display({
@@ -229,12 +216,7 @@ const COLUMNS = [
     cell: (i) => {
       const row = i.row.original;
       if (!row.success) return null;
-      return (
-        <ScoreCell
-          score={row.situpsScore}
-          applicable={!row.isOlder! && !row.isMale}
-        />
-      );
+      return <ScoreCell score={row.situpsScore} />;
     },
   }),
   ch.display({
@@ -244,7 +226,7 @@ const COLUMNS = [
     cell: (i) => {
       const row = i.row.original;
       if (!row.success) return null;
-      return <ScoreCell score={row.verticalJumpScore} applicable={!row.isOlder!} />;
+      return <ScoreCell score={row.verticalJumpScore} />;
     },
   }),
   ch.display({
@@ -254,7 +236,7 @@ const COLUMNS = [
     cell: (i) => {
       const row = i.row.original;
       if (!row.success) return null;
-      return <ScoreCell score={row.sitAndReachScore} applicable={true} />;
+      return <ScoreCell score={row.sitAndReachScore} />;
     },
   }),
   ch.display({
@@ -264,7 +246,7 @@ const COLUMNS = [
     cell: (i) => {
       const row = i.row.original;
       if (!row.success) return null;
-      return <ScoreCell score={row.reactionTimeScore} applicable={true} />;
+      return <ScoreCell score={row.reactionTimeScore} />;
     },
   }),
   ch.display({
@@ -274,7 +256,7 @@ const COLUMNS = [
     cell: (i) => {
       const row = i.row.original;
       if (!row.success) return null;
-      return <ScoreCell score={row.singleLegStandScore} applicable={true} />;
+      return <ScoreCell score={row.singleLegStandScore} />;
     },
   }),
   ch.accessor("totalScore", {
@@ -282,9 +264,8 @@ const COLUMNS = [
     size: 56,
     cell: (i) => {
       const v = i.getValue();
-      return v !== undefined ? (
-        <span className="text-xs font-semibold">{v}</span>
-      ) : null;
+      if (v === undefined || v === null) return <span className="text-muted-foreground">—</span>;
+      return <span className="text-xs font-semibold">{v}</span>;
     },
   }),
   ch.display({

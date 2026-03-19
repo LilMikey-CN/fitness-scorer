@@ -92,7 +92,40 @@ export interface ScoreResult {
 
 // ─── 批量处理 ─────────────────────────────────────────────────────────────────
 
-/** 批量处理单行结果（在 ScoreResult 基础上增加行号和原始行数据） */
+/**
+ * 支持部分字段缺省的评分结果（批量模式专用）
+ *
+ * 与 ScoreResult 的区别：
+ * - input 只含必填字段（gender/age/height/weight）
+ * - 各项得分 null = 不适用 OR 数据未提供（输出均显示 "—"）
+ * - totalScore/overallGrade 仅当所有适用字段均有数据时才计算
+ */
+export interface PartialScoreResult {
+  input: { name?: string; gender: Gender; age: number; height: number; weight: number };
+  ageGroup: AgeGroup;
+  /** 身高体重得分（数据必填，始终计算；null = 身高超出范围） */
+  heightWeightScore: HeightWeightScore | null;
+  /** 以下得分：null = 不适用 或 数据缺失（输出均为 "—"） */
+  lungCapacityScore: ItemScore | null;
+  stepIndexScore: ItemScore | null;
+  gripStrengthScore: ItemScore | null;
+  pushupsScore: ItemScore | null;
+  situpsScore: ItemScore | null;
+  verticalJumpScore: ItemScore | null;
+  sitAndReachScore: ItemScore | null;
+  reactionTimeScore: ItemScore | null;
+  singleLegStandScore: ItemScore | null;
+  /** 是否适用（区分"不适用"与"数据缺失"，供 UI 展示） */
+  pushupsApplicable: boolean;
+  situpsApplicable: boolean;
+  verticalJumpApplicable: boolean;
+  /** 仅当所有适用字段均有数据时才有值 */
+  totalScore: number | null;
+  overallGrade: OverallGrade | null;
+  warnings: string[];
+}
+
+/** 批量处理单行结果 */
 export interface BatchRowResult {
   /** 原始行号（从1开始，含表头时+1） */
   rowIndex: number;
@@ -101,7 +134,7 @@ export interface BatchRowResult {
   /** 解析/评分失败时的错误描述 */
   error?: string;
   /** 成功时的评分结果 */
-  result?: ScoreResult;
+  result?: PartialScoreResult;
 }
 
 /** 批量处理整体结果 */
