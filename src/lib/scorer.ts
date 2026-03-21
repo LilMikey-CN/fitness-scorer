@@ -130,8 +130,8 @@ export function lookupAscending(
   value: number,
 ): ItemScore {
   const row = table.find(r => r.ageGroup === ageGroup && r.gender === gender);
-  if (!row) return 0;
-  if (value < row.s1) return 0;
+  if (!row) return 1;
+  if (value < row.s1) return 1;
   if (value < row.s2) return 1;
   if (value < row.s3) return 2;
   if (value < row.s4) return 3;
@@ -148,8 +148,8 @@ export function lookupDescending(
   value: number,
 ): ItemScore {
   const row = table.find(r => r.ageGroup === ageGroup && r.gender === gender);
-  if (!row) return 0;
-  if (value > row.s1max) return 0;
+  if (!row) return 1;
+  if (value > row.s1max) return 1;
   if (value > row.s2max) return 1;
   if (value > row.s3max) return 2;
   if (value > row.s4max) return 3;
@@ -264,12 +264,9 @@ export function scorePerson(input: PersonInput): ScoreResult {
     verticalJumpScore,
   ];
 
-  // 检查身高体重是否超范围（null → 无分）
+  // 检查身高体重是否超范围（null → 无法评级）
   const hasNull = heightWeightScore === null;
-  const hasZero =
-    hasNull ||
-    mandatoryScores.some(s => s === 0) ||
-    optionalScores.some(s => s !== null && s === 0);
+  const hasZero = hasNull; // 唯一无法评级的情况：身高超出范围
 
   const totalScore =
     (heightWeightScore ?? 0) +

@@ -248,14 +248,7 @@ function scoreRowPartial(input: PartialPersonInput): PartialScoreResult {
 
   if (allMandatoryPresent && allConditionalPresent) {
     const hw = heightWeightScore ?? 0;
-    const hasZero =
-      heightWeightScore === null || hw === 0 ||
-      lungCapacityScore === 0 || stepIndexScore === 0 ||
-      gripStrengthScore === 0 || sitAndReachScore === 0 ||
-      reactionTimeScore === 0 || singleLegStandScore === 0 ||
-      (pushupsApplicable && pushupsScore === 0) ||
-      (situpsApplicable && situpsScore === 0) ||
-      (verticalJumpApplicable && verticalJumpScore === 0);
+    const hasZero = heightWeightScore === null; // 唯一无法评级的情况：身高超出范围
 
     totalScore =
       hw +
