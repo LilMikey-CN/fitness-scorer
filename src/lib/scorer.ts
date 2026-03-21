@@ -248,22 +248,6 @@ export function scorePerson(input: PersonInput): ScoreResult {
   // 10. 闭眼单脚站立
   const singleLegStandScore = lookupAscending(SINGLE_LEG_STAND, ageGroup, gender, input.singleLegStand);
 
-  // 计算总分（null项不计入；0分意味着"无分"参与综合评级判断）
-  const mandatoryScores: ItemScore[] = [
-    heightWeightScore ?? 0,
-    lungCapacityScore,
-    stepIndexScore,
-    gripStrengthScore,
-    sitAndReachScore,
-    reactionTimeScore,
-    singleLegStandScore,
-  ];
-  const optionalScores: (ItemScore | null)[] = [
-    pushupsScore,
-    situpsScore,
-    verticalJumpScore,
-  ];
-
   // 检查身高体重是否超范围（null → 无法评级）
   const hasNull = heightWeightScore === null;
   const hasZero = hasNull; // 唯一无法评级的情况：身高超出范围
