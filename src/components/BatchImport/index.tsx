@@ -44,6 +44,7 @@ interface TableRow {
   singleLegStandScore?: number | null;
   totalScore?: number | null;
   overallGrade?: string | null;
+  railwayGrade?: string | null;
   warnings?: string[];
   pushupsApplicable?: boolean;
   situpsApplicable?: boolean;
@@ -72,6 +73,7 @@ function toTableRow(row: BatchResult["rows"][number]): TableRow {
     singleLegStandScore: r.singleLegStandScore,
     totalScore: r.totalScore,
     overallGrade: r.overallGrade,
+    railwayGrade: r.railwayGrade,
     warnings: r.warnings,
     pushupsApplicable: r.pushupsApplicable,
     situpsApplicable: r.situpsApplicable,
@@ -206,6 +208,7 @@ const COLUMNS = [
     cell: (i) => {
       const row = i.row.original;
       if (!row.success) return null;
+      if (!row.pushupsApplicable) return <span className="text-muted-foreground text-xs">N/A</span>;
       return <ScoreCell score={row.pushupsScore} />;
     },
   }),
@@ -216,6 +219,7 @@ const COLUMNS = [
     cell: (i) => {
       const row = i.row.original;
       if (!row.success) return null;
+      if (!row.situpsApplicable) return <span className="text-muted-foreground text-xs">N/A</span>;
       return <ScoreCell score={row.situpsScore} />;
     },
   }),
@@ -226,6 +230,7 @@ const COLUMNS = [
     cell: (i) => {
       const row = i.row.original;
       if (!row.success) return null;
+      if (!row.verticalJumpApplicable) return <span className="text-muted-foreground text-xs">N/A</span>;
       return <ScoreCell score={row.verticalJumpScore} />;
     },
   }),
@@ -276,6 +281,16 @@ const COLUMNS = [
       const row = i.row.original;
       if (!row.success) return null;
       return <GradeCell grade={row.overallGrade} />;
+    },
+  }),
+  ch.display({
+    id: "railwayGrade",
+    header: "铁路评级",
+    size: 96,
+    cell: (i) => {
+      const row = i.row.original;
+      if (!row.success) return null;
+      return <GradeCell grade={row.railwayGrade} />;
     },
   }),
   ch.display({

@@ -86,6 +86,8 @@ export interface ScoreResult {
   totalScore: number;
   /** 综合评级（任意必选项为 null 或 0 时为 null） */
   overallGrade: OverallGrade | null;
+  /** 铁路职工体质测定标准综合评级 */
+  railwayGrade: OverallGrade | null;
   /** 错误/警告信息列表（正常时为空数组） */
   warnings: string[];
 }
@@ -105,23 +107,26 @@ export interface PartialScoreResult {
   ageGroup: AgeGroup;
   /** 身高体重得分（数据必填，始终计算；null = 身高超出范围） */
   heightWeightScore: HeightWeightScore | null;
-  /** 以下得分：null = 不适用 或 数据缺失（输出均为 "—"） */
-  lungCapacityScore: ItemScore | null;
-  stepIndexScore: ItemScore | null;
-  gripStrengthScore: ItemScore | null;
+  /** 以下得分：0 = 无分（数据缺失或值为0） */
+  lungCapacityScore: ItemScore;
+  stepIndexScore: ItemScore;
+  gripStrengthScore: ItemScore;
+  /** 条件字段得分：null = 不适用（性别/年龄组不匹配） */
   pushupsScore: ItemScore | null;
   situpsScore: ItemScore | null;
   verticalJumpScore: ItemScore | null;
-  sitAndReachScore: ItemScore | null;
-  reactionTimeScore: ItemScore | null;
-  singleLegStandScore: ItemScore | null;
+  sitAndReachScore: ItemScore;
+  reactionTimeScore: ItemScore;
+  singleLegStandScore: ItemScore;
   /** 是否适用（区分"不适用"与"数据缺失"，供 UI 展示） */
   pushupsApplicable: boolean;
   situpsApplicable: boolean;
   verticalJumpApplicable: boolean;
-  /** 仅当所有适用字段均有数据时才有值 */
-  totalScore: number | null;
+  /** 总分（始终计算，缺失字段以0分计入） */
+  totalScore: number;
   overallGrade: OverallGrade | null;
+  /** 铁路职工体质测定标准综合评级 */
+  railwayGrade: OverallGrade | null;
   warnings: string[];
 }
 

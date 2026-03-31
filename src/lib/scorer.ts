@@ -157,6 +157,35 @@ export function lookupDescending(
   return 5;
 }
 
+// ─── 批量处理用包装函数（处理空值/零值） ──────────────────────────────────────
+
+/** 升序指标：值为 undefined/0 → 0分（无分），否则正常查表 */
+export function scoreAscZero(
+  table: AscendingScoreRow[], ageGroup: AgeGroup, gender: Gender,
+  value: number | undefined,
+): ItemScore {
+  if (value === undefined || value === 0) return 0;
+  return lookupAscending(table, ageGroup, gender, value);
+}
+
+/** 升序指标（允许0值，如坐位体前屈）：仅 undefined → 0分 */
+export function scoreAscEmpty(
+  table: AscendingScoreRow[], ageGroup: AgeGroup, gender: Gender,
+  value: number | undefined,
+): ItemScore {
+  if (value === undefined) return 0;
+  return lookupAscending(table, ageGroup, gender, value);
+}
+
+/** 降序指标（选择反应时）：仅 undefined → 0分 */
+export function scoreDescEmpty(
+  table: DescendingScoreRow[], ageGroup: AgeGroup, gender: Gender,
+  value: number | undefined,
+): ItemScore {
+  if (value === undefined) return 0;
+  return lookupDescending(table, ageGroup, gender, value);
+}
+
 // ─── 综合评级 ─────────────────────────────────────────────────────────────────
 
 function calcOverallGrade(
@@ -174,6 +203,27 @@ function calcOverallGrade(
     if (totalScore > 33) return '一级(优秀)';
     if (totalScore >= 30) return '二级(良好)';
     if (totalScore >= 23) return '三级(合格)';
+    return '四级(不合格)';
+  }
+}
+
+// ─── 铁路职工体质测定标准综合评级 ──────────────────────────────────────────────
+
+function calcRailwayGrade(
+  totalScore: number,
+  ageGroup: AgeGroup,
+  hasZero: boolean,
+): OverallGrade | null {
+  if (hasZero) return null;
+  if (isOlderGroup(ageGroup)) {
+    if (totalScore > 27) return '一级(优秀)';
+    if (totalScore >= 24) return '二级(良好)';
+    if (totalScore >= 16) return '三级(合格)';
+    return '四级(不合格)';
+  } else {
+    if (totalScore > 33) return '一级(优秀)';
+    if (totalScore >= 30) return '二级(良好)';
+    if (totalScore >= 20) return '三级(合格)';
     return '四级(不合格)';
   }
 }
@@ -197,56 +247,60 @@ export function scorePerson(input: PersonInput): ScoreResult {
     warnings.push(`身高 ${input.height}cm 超出标准表范围`);
   }
 
-  // 2. 肺活量
-  const lungCapacityScore = lookupAscending(LUNG_CAPACITY, ageGroup, gender, input.lungCapacity);
+  // 2. 肺活量（值为0 → 0分）
+  const lungCapacityScore: ItemScore = input.lungCapacity === 0
+    ? 0 : lookupAscending(LUNG_CAPACITY, ageGroup, gender, input.lungCapacity);
 
-  // 3. 台阶指数
-  const stepIndexScore = lookupAscending(STEP_INDEX, ageGroup, gender, input.stepIndex);
+  // 3. 台阶指数（值为0 → 0分）
+  const stepIndexScore: ItemScore = input.stepIndex === 0
+    ? 0 : lookupAscending(STEP_INDEX, ageGroup, gender, input.stepIndex);
 
-  // 4. 握力
-  const gripStrengthScore = lookupAscending(GRIP_STRENGTH, ageGroup, gender, input.gripStrength);
+  // 4. 握力（值为0 → 0分）
+  const gripStrengthScore: ItemScore = input.gripStrength === 0
+    ? 0 : lookupAscending(GRIP_STRENGTH, ageGroup, gender, input.gripStrength);
 
-  // 5. 俯卧撑（仅男性20-39岁）
+  // 5. 俯卧撑（仅男性20-39岁，值为0 → 0分）
   let pushupsScore: ItemScore | null = null;
   if (!older && gender === 1) {
-    if (input.pushups === null) {
-      warnings.push('俯卧撑为必填项（男性20-39岁）');
+    if (input.pushups === null || input.pushups === 0) {
+      if (input.pushups === null) warnings.push('俯卧撑为必填项（男性20-39岁）');
       pushupsScore = 0;
     } else {
       pushupsScore = lookupAscending(PUSHUPS, ageGroup, gender, input.pushups);
     }
   }
 
-  // 6. 仰卧起坐（仅女性20-39岁）
+  // 6. 仰卧起坐（仅女性20-39岁，值为0 → 0分）
   let situpsScore: ItemScore | null = null;
   if (!older && gender === 0) {
-    if (input.situps === null) {
-      warnings.push('仰卧起坐为必填项（女性20-39岁）');
+    if (input.situps === null || input.situps === 0) {
+      if (input.situps === null) warnings.push('仰卧起坐为必填项（女性20-39岁）');
       situpsScore = 0;
     } else {
       situpsScore = lookupAscending(SITUPS, ageGroup, gender, input.situps);
     }
   }
 
-  // 7. 纵跳（仅20-39岁）
+  // 7. 纵跳（仅20-39岁，值为0 → 0分）
   let verticalJumpScore: ItemScore | null = null;
   if (!older) {
-    if (input.verticalJump === null) {
-      warnings.push('纵跳为必填项（20-39岁）');
+    if (input.verticalJump === null || input.verticalJump === 0) {
+      if (input.verticalJump === null) warnings.push('纵跳为必填项（20-39岁）');
       verticalJumpScore = 0;
     } else {
       verticalJumpScore = lookupAscending(VERTICAL_JUMP, ageGroup, gender, input.verticalJump);
     }
   }
 
-  // 8. 坐位体前屈
+  // 8. 坐位体前屈（0是合法测量值，不特殊处理）
   const sitAndReachScore = lookupAscending(SIT_AND_REACH, ageGroup, gender, input.sitAndReach);
 
-  // 9. 选择反应时
+  // 9. 选择反应时（0是合法测量值，不特殊处理）
   const reactionTimeScore = lookupDescending(REACTION_TIME, ageGroup, gender, input.reactionTime);
 
-  // 10. 闭眼单脚站立
-  const singleLegStandScore = lookupAscending(SINGLE_LEG_STAND, ageGroup, gender, input.singleLegStand);
+  // 10. 闭眼单脚站立（值为0 → 0分）
+  const singleLegStandScore: ItemScore = input.singleLegStand === 0
+    ? 0 : lookupAscending(SINGLE_LEG_STAND, ageGroup, gender, input.singleLegStand);
 
   // 检查身高体重是否超范围（null → 无法评级）
   const hasNull = heightWeightScore === null;
@@ -265,6 +319,7 @@ export function scorePerson(input: PersonInput): ScoreResult {
     (verticalJumpScore ?? 0);
 
   const overallGrade = calcOverallGrade(totalScore, ageGroup, hasZero);
+  const railwayGrade = calcRailwayGrade(totalScore, ageGroup, hasZero);
 
   return {
     input,
@@ -281,6 +336,7 @@ export function scorePerson(input: PersonInput): ScoreResult {
     singleLegStandScore,
     totalScore,
     overallGrade,
+    railwayGrade,
     warnings,
   };
 }

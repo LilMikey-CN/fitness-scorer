@@ -22,6 +22,7 @@ export interface ScorePanelData {
   fields: FieldScore[];
   totalScore: number | null;
   overallGrade: OverallGrade | null;
+  railwayGrade: OverallGrade | null;
   hasZeroScore: boolean;
   warnings: string[];
 }
@@ -154,13 +155,23 @@ export function ScorePanel({ data }: Props) {
           </span>
         </div>
 
-        {/* 综合评级 */}
+        {/* 综合评级（国标） */}
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium">综合评级</span>
           {data.hasZeroScore && allFilled ? (
             <span className="text-xs text-destructive">有项目无分，无法评级</span>
           ) : (
             <GradeBadge grade={allFilled ? data.overallGrade : null} />
+          )}
+        </div>
+
+        {/* 铁路职工评级 */}
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium">铁路评级</span>
+          {data.hasZeroScore && allFilled ? (
+            <span className="text-xs text-destructive">有项目无分，无法评级</span>
+          ) : (
+            <GradeBadge grade={allFilled ? data.railwayGrade : null} />
           )}
         </div>
 

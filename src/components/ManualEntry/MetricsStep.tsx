@@ -153,6 +153,7 @@ function computeScorePanelData(
 
   let totalScore: number | null = null;
   let overallGrade = null;
+  let railwayGrade = null;
   let hasZeroScore = false;
   let warnings: string[] = [];
 
@@ -176,6 +177,7 @@ function computeScorePanelData(
       });
       totalScore = result.totalScore;
       overallGrade = result.overallGrade;
+      railwayGrade = result.railwayGrade;
       hasZeroScore =
         result.overallGrade === null &&
         (result.heightWeightScore === null ||
@@ -193,7 +195,7 @@ function computeScorePanelData(
     }
   }
 
-  return { ageGroup, isOlder, isMale, fields, totalScore, overallGrade, hasZeroScore, warnings };
+  return { ageGroup, isOlder, isMale, fields, totalScore, overallGrade, railwayGrade, hasZeroScore, warnings };
 }
 
 // ─── 单行表单项 ───────────────────────────────────────────────────────────────

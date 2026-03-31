@@ -5,15 +5,15 @@
  *
  * 设计原则：
  * - 只有性别、年龄、身高、体重为必填；其余测量字段可选
- * - 有数据 → 计算该项得分；无数据 → null（输出显示 "—"）
- * - 总分/综合评级：仅当所有适用字段均有数据时才计算
+ * - 有数据 → 计算该项得分；无数据 → 0分（无分）
+ * - 总分/综合评级：始终计算（缺失字段以0分计入）
  * - 性别接受：1/男/Male/M（男）或 0/女/Female/F（女）
  * ──────────────────────────────────────────────────────────────────────────────
  */
 
 import * as XLSX from 'xlsx';
 import type { PartialScoreResult, BatchResult, BatchRowResult, Gender, AgeGroup, ItemScore, OverallGrade } from '../types';
-import { getAgeGroup, isOlderGroup, scoreHW, lookupAscending, lookupDescending } from './scorer';
+import { getAgeGroup, isOlderGroup, scoreHW, scoreAscZero, scoreAscEmpty, scoreDescEmpty } from './scorer';
 import {
   LUNG_CAPACITY, STEP_INDEX, GRIP_STRENGTH,
   PUSHUPS, SITUPS, VERTICAL_JUMP,
@@ -187,6 +187,20 @@ function calcGrade(totalScore: number, ageGroup: AgeGroup): OverallGrade {
   }
 }
 
+function calcRailwayGrade(totalScore: number, ageGroup: AgeGroup): OverallGrade {
+  if (isOlderGroup(ageGroup)) {
+    if (totalScore > 27) return '一级(优秀)';
+    if (totalScore >= 24) return '二级(良好)';
+    if (totalScore >= 16) return '三级(合格)';
+    return '四级(不合格)';
+  } else {
+    if (totalScore > 33) return '一级(优秀)';
+    if (totalScore >= 30) return '二级(良好)';
+    if (totalScore >= 20) return '三级(合格)';
+    return '四级(不合格)';
+  }
+}
+
 // ─── 逐字段部分评分 ───────────────────────────────────────────────────────────
 
 function scoreRowPartial(input: PartialPersonInput): PartialScoreResult {
@@ -200,70 +214,48 @@ function scoreRowPartial(input: PartialPersonInput): PartialScoreResult {
   const heightWeightScore = scoreHW(input.height, input.weight, gender, ageGroup);
   if (heightWeightScore === null) warnings.push(`身高 ${input.height}cm 超出标准表范围`);
 
-  // 机能（可选）
-  const lungCapacityScore: ItemScore | null = input.lungCapacity !== undefined
-    ? lookupAscending(LUNG_CAPACITY, ageGroup, gender, input.lungCapacity) : null;
-  const stepIndexScore: ItemScore | null = input.stepIndex !== undefined
-    ? lookupAscending(STEP_INDEX, ageGroup, gender, input.stepIndex) : null;
+  // 机能（空值/零值 → 0分）
+  const lungCapacityScore: ItemScore = scoreAscZero(LUNG_CAPACITY, ageGroup, gender, input.lungCapacity);
+  const stepIndexScore: ItemScore = scoreAscZero(STEP_INDEX, ageGroup, gender, input.stepIndex);
 
-  // 体能 — 握力（可选）
-  const gripStrengthScore: ItemScore | null = input.gripStrength !== undefined
-    ? lookupAscending(GRIP_STRENGTH, ageGroup, gender, input.gripStrength) : null;
+  // 体能 — 握力（空值/零值 → 0分）
+  const gripStrengthScore: ItemScore = scoreAscZero(GRIP_STRENGTH, ageGroup, gender, input.gripStrength);
 
-  // 体能 — 条件字段
+  // 体能 — 条件字段（不适用 → null，适用但空值/零值 → 0分）
   const pushupsApplicable = !older && isMale;
   const situpsApplicable = !older && !isMale;
   const verticalJumpApplicable = !older;
 
-  const pushupsScore: ItemScore | null = pushupsApplicable && input.pushups !== undefined
-    ? lookupAscending(PUSHUPS, ageGroup, gender, input.pushups) : null;
-  const situpsScore: ItemScore | null = situpsApplicable && input.situps !== undefined
-    ? lookupAscending(SITUPS, ageGroup, gender, input.situps) : null;
-  const verticalJumpScore: ItemScore | null = verticalJumpApplicable && input.verticalJump !== undefined
-    ? lookupAscending(VERTICAL_JUMP, ageGroup, gender, input.verticalJump) : null;
+  const pushupsScore: ItemScore | null = pushupsApplicable
+    ? scoreAscZero(PUSHUPS, ageGroup, gender, input.pushups) : null;
+  const situpsScore: ItemScore | null = situpsApplicable
+    ? scoreAscZero(SITUPS, ageGroup, gender, input.situps) : null;
+  const verticalJumpScore: ItemScore | null = verticalJumpApplicable
+    ? scoreAscZero(VERTICAL_JUMP, ageGroup, gender, input.verticalJump) : null;
 
-  // 柔韧灵敏平衡（可选）
-  const sitAndReachScore: ItemScore | null = input.sitAndReach !== undefined
-    ? lookupAscending(SIT_AND_REACH, ageGroup, gender, input.sitAndReach) : null;
-  const reactionTimeScore: ItemScore | null = input.reactionTime !== undefined
-    ? lookupDescending(REACTION_TIME, ageGroup, gender, input.reactionTime) : null;
-  const singleLegStandScore: ItemScore | null = input.singleLegStand !== undefined
-    ? lookupAscending(SINGLE_LEG_STAND, ageGroup, gender, input.singleLegStand) : null;
+  // 柔韧灵敏平衡（坐位体前屈允许0值；选择反应时允许0值）
+  const sitAndReachScore: ItemScore = scoreAscEmpty(SIT_AND_REACH, ageGroup, gender, input.sitAndReach);
+  const reactionTimeScore: ItemScore = scoreDescEmpty(REACTION_TIME, ageGroup, gender, input.reactionTime);
+  const singleLegStandScore: ItemScore = scoreAscZero(SINGLE_LEG_STAND, ageGroup, gender, input.singleLegStand);
 
-  // 是否所有适用字段都有数据
-  const allMandatoryPresent =
-    lungCapacityScore !== null &&
-    stepIndexScore !== null &&
-    gripStrengthScore !== null &&
-    sitAndReachScore !== null &&
-    reactionTimeScore !== null &&
-    singleLegStandScore !== null;
-  const allConditionalPresent =
-    (!pushupsApplicable || pushupsScore !== null) &&
-    (!situpsApplicable || situpsScore !== null) &&
-    (!verticalJumpApplicable || verticalJumpScore !== null);
+  // 总分始终计算（缺失字段以0分计入）
+  const hw = heightWeightScore ?? 0;
+  const hasZero = heightWeightScore === null; // 唯一无法评级的情况：身高超出范围
 
-  let totalScore: number | null = null;
-  let overallGrade: OverallGrade | null = null;
+  const totalScore =
+    hw +
+    lungCapacityScore +
+    stepIndexScore +
+    gripStrengthScore +
+    sitAndReachScore +
+    reactionTimeScore +
+    singleLegStandScore +
+    (pushupsScore ?? 0) +
+    (situpsScore ?? 0) +
+    (verticalJumpScore ?? 0);
 
-  if (allMandatoryPresent && allConditionalPresent) {
-    const hw = heightWeightScore ?? 0;
-    const hasZero = heightWeightScore === null; // 唯一无法评级的情况：身高超出范围
-
-    totalScore =
-      hw +
-      (lungCapacityScore ?? 0) +
-      (stepIndexScore ?? 0) +
-      (gripStrengthScore ?? 0) +
-      (sitAndReachScore ?? 0) +
-      (reactionTimeScore ?? 0) +
-      (singleLegStandScore ?? 0) +
-      (pushupsApplicable ? (pushupsScore ?? 0) : 0) +
-      (situpsApplicable ? (situpsScore ?? 0) : 0) +
-      (verticalJumpApplicable ? (verticalJumpScore ?? 0) : 0);
-
-    if (!hasZero) overallGrade = calcGrade(totalScore, ageGroup);
-  }
+  const overallGrade: OverallGrade | null = !hasZero ? calcGrade(totalScore, ageGroup) : null;
+  const railwayGrade: OverallGrade | null = !hasZero ? calcRailwayGrade(totalScore, ageGroup) : null;
 
   return {
     input: { name: input.name, gender, age: input.age, height: input.height, weight: input.weight },
@@ -283,6 +275,7 @@ function scoreRowPartial(input: PartialPersonInput): PartialScoreResult {
     verticalJumpApplicable,
     totalScore,
     overallGrade,
+    railwayGrade,
     warnings,
   };
 }
@@ -332,7 +325,7 @@ export function processBatch(workbook: XLSX.WorkBook): BatchResult {
 
 // ─── 输出列定义 ───────────────────────────────────────────────────────────────
 
-// 追加列布局（共 14 列）：
+// 追加列布局（共 15 列）：
 //   N+0  年龄组
 //   N+1  身高体重_分   ← 形态指标
 //   N+2  肺活量_分     ← 机能指标
@@ -345,8 +338,9 @@ export function processBatch(workbook: XLSX.WorkBook): BatchResult {
 //   N+9  选择反应时_分
 //   N+10 闭眼单脚站立_分
 //   N+11 总分
-//   N+12 综合评级
-//   N+13 备注
+//   N+12 综合评级（国标）
+//   N+13 铁路评级
+//   N+14 备注
 
 const SCORE_FIELD_NAMES = [
   '年龄组',
@@ -362,10 +356,11 @@ const SCORE_FIELD_NAMES = [
   '闭眼单脚站立_分',
   '总分',
   '综合评级',
+  '铁路评级',
   '备注',
 ];
 
-const SCORE_COUNT = SCORE_FIELD_NAMES.length; // 14
+const SCORE_COUNT = SCORE_FIELD_NAMES.length; // 15
 
 function scoreToStr(score: number | null | undefined): string {
   if (score === null || score === undefined) return '—';
@@ -391,7 +386,7 @@ export function buildOutputWorkbook(
 
   // 行 1：原始表头 + 分组标签（合并单元格）
   // 偏移：N+0=年龄组(无组), N+1=形态, N+2=机能(merge→N+3), N+4=体能(merge→N+7),
-  //       N+8=柔韧灵敏平衡(merge→N+10), N+11..N+13 无组标签
+  //       N+8=柔韧灵敏平衡(merge→N+10), N+11..N+14 无组标签
   const groupRow: unknown[] = [
     ...originalHeaders,
     '',               // N+0 年龄组（无分组标签）
@@ -402,7 +397,7 @@ export function buildOutputWorkbook(
     '', '', '',       // N+5 N+6 N+7
     '柔韧灵敏平衡指标', // N+8（合并至 N+10）
     '', '',           // N+9 N+10
-    '', '', '',       // N+11 N+12 N+13
+    '', '', '', '',   // N+11 N+12 N+13 N+14
   ];
 
   // 行 2：原始列留空 + 各分项字段名
@@ -446,14 +441,15 @@ export function buildOutputWorkbook(
       scoreToStr(r.lungCapacityScore),
       scoreToStr(r.stepIndexScore),
       scoreToStr(r.gripStrengthScore),
-      scoreToStr(r.pushupsScore),
-      scoreToStr(r.situpsScore),
-      scoreToStr(r.verticalJumpScore),
+      !r.pushupsApplicable ? 'N/A' : scoreToStr(r.pushupsScore),
+      !r.situpsApplicable ? 'N/A' : scoreToStr(r.situpsScore),
+      !r.verticalJumpApplicable ? 'N/A' : scoreToStr(r.verticalJumpScore),
       scoreToStr(r.sitAndReachScore),
       scoreToStr(r.reactionTimeScore),
       scoreToStr(r.singleLegStandScore),
-      r.totalScore !== null ? r.totalScore : '—',
+      r.totalScore,
       r.overallGrade ?? '—',
+      r.railwayGrade ?? '—',
       r.warnings.join('；'),
     ];
     dataRows.push([...origRow, ...scoreCols]);
