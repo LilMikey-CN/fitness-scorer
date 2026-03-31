@@ -217,8 +217,8 @@ export const HW_F_30_39: HeightWeightRow[] = [
   { heightMin: 147.0, heightMax: 147.9, w1Light: 38.9, w3Light: 41.9, w5Max: 58.7, w3Heavy: 62.3 },
   { heightMin: 148.0, heightMax: 148.9, w1Light: 39.4, w3Light: 42.4, w5Max: 59.3, w3Heavy: 63.1 },
   { heightMin: 149.0, heightMax: 149.9, w1Light: 40.0, w3Light: 42.9, w5Max: 59.9, w3Heavy: 63.8 },
-  // [ERRATA] 150cm行：4分上限原文"64.0"疑为"64.5"（整体趋势），保留原值 64.0（w3Heavy=64.0）
-  { heightMin: 150.0, heightMax: 150.9, w1Light: 40.6, w3Light: 43.5, w5Max: 60.5, w3Heavy: 64.0 },
+  // 铁路标准（表4）确认：150cm行 w3Heavy=64.5，消除国民标准64.1~64.4的无分空白区间
+  { heightMin: 150.0, heightMax: 150.9, w1Light: 40.6, w3Light: 43.5, w5Max: 60.5, w3Heavy: 64.5 },
   { heightMin: 151.0, heightMax: 151.9, w1Light: 41.2, w3Light: 44.1, w5Max: 61.1, w3Heavy: 65.1 },
   { heightMin: 152.0, heightMax: 152.9, w1Light: 41.8, w3Light: 44.7, w5Max: 61.8, w3Heavy: 65.7 },
   { heightMin: 153.0, heightMax: 153.9, w1Light: 42.5, w3Light: 45.3, w5Max: 62.4, w3Heavy: 66.4 },
@@ -270,8 +270,8 @@ export const HW_M_40_49: HeightWeightRow[] = [
   { heightMin: 149.0, heightMax: 149.9, w1Light: 41.5, w3Light: 43.4, w5Max: 57.2, w3Heavy: 60.9 },
   { heightMin: 150.0, heightMax: 150.9, w1Light: 42.2, w3Light: 44.1, w5Max: 58.0, w3Heavy: 61.8 },
   { heightMin: 151.0, heightMax: 151.9, w1Light: 43.0, w3Light: 44.7, w5Max: 58.9, w3Heavy: 62.6 },
-  // [ERRATA] 152cm行: 4分下限原文"59.9"，与5分上限"59.7"矛盾，取59.8（取中）
-  { heightMin: 152.0, heightMax: 152.9, w1Light: 43.7, w3Light: 45.4, w5Max: 59.7, w3Heavy: 63.5 },
+  // 铁路标准（表5）确认：152cm行 w5Max=59.8，消除国民标准59.8的空白点
+  { heightMin: 152.0, heightMax: 152.9, w1Light: 43.7, w3Light: 45.4, w5Max: 59.8, w3Heavy: 63.5 },
   // [ERRATA] 153cm行: 3分下限原文重复"46.1"(3分和4分下限相同)，保留原值
   { heightMin: 153.0, heightMax: 153.9, w1Light: 44.4, w3Light: 46.1, w5Max: 60.7, w3Heavy: 64.5 },
   { heightMin: 154.0, heightMax: 154.9, w1Light: 45.0, w3Light: 46.9, w5Max: 61.8, w3Heavy: 65.6 },
@@ -601,22 +601,26 @@ export const SIT_AND_REACH: AscendingScoreRow[] = [
   { ageGroup: '20-24', gender: 0, s1: -2.1, s2: 2.9, s3: 9.5, s4: 14.4, s5: 20.3 },
   { ageGroup: '25-29', gender: 1, s1: -5.5, s2: 1.0, s3: 7.9, s4: 13.5, s5: 19.8 },
   { ageGroup: '25-29', gender: 0, s1: -3.5, s2: 2.0, s3: 8.3, s4: 14.0, s5: 19.8 },
-  // [ERRATA] 30-34男：原文2分"0.0-6.4"与1分上限"0.1"有重叠，取 s2=0.2
-  { ageGroup: '30-34', gender: 1, s1: -7.0, s2: 0.2, s3: 6.5, s4: 12.0, s5: 18.4 },
+  // 1分范围 -7.0~-0.1，2分范围 0.0~6.4，无重叠亦无空白
+  // [ERRATA-FIXED] 原代码误将"-0.1"读为"0.1"，铁路标准（表15）确认 s2=0.0
+  { ageGroup: '30-34', gender: 1, s1: -7.0, s2: 0.0, s3: 6.5, s4: 12.0, s5: 18.4 },
   { ageGroup: '30-34', gender: 0, s1: -4.0, s2: 1.7, s3: 8.0, s4: 13.4, s5: 19.3 },
   { ageGroup: '35-39', gender: 1, s1: -8.7, s2: -2.3, s3: 5.0, s4: 10.8, s5: 17.2 },
   { ageGroup: '35-39', gender: 0, s1: -8.7, s2: -2.3, s3: 5.0, s4: 10.8, s5: 17.2 },
   { ageGroup: '40-44', gender: 1, s1: -9.4, s2: -3.7, s3: 4.0, s4: 10.0, s5: 16.3 },
   { ageGroup: '40-44', gender: 0, s1: -5.9, s2: 0.2, s3: 6.6, s4: 12.0, s5: 18.0 },
   { ageGroup: '45-49', gender: 1, s1: -10.0, s2: -4.3, s3: 3.3, s4: 9.2, s5: 16.0 },
-  // [ERRATA] 45-49女：2分"0.0-6.1"与1分上限"0.1"冲突，取 s2=0.0（≥0.0得2分）
+  // 铁路标准（表15）确认：1分=-6.3~-0.1，2分=0.0~6.1，s2=0.0 正确无误
+  // 国民PDF将"-0.1"印刷为"0.1"，造成表观重叠，实际无重叠
   { ageGroup: '45-49', gender: 0, s1: -6.3, s2: 0.0, s3: 6.2, s4: 11.9, s5: 18.0 },
   { ageGroup: '50-54', gender: 1, s1: -10.7, s2: -5.5, s3: 2.2, s4: 8.0, s5: 14.9 },
-  // [ERRATA] 50-54女：2分"0.5-5.9"与1分上限"0.6"冲突，取 s2=0.7（原文下一档）
-  { ageGroup: '50-54', gender: 0, s1: -6.5, s2: 0.7, s3: 6.0, s4: 11.5, s5: 18.0 },
+  // [ERRATA-FIXED] 国民PDF印刷丢失负号："-0.6/-0.5"错印为"0.6/0.5"
+  // 铁路标准（表15）明确：1分=-6.5~-0.6，2分=-0.5~5.9，故 s2=-0.5
+  { ageGroup: '50-54', gender: 0, s1: -6.5, s2: -0.5, s3: 6.0, s4: 11.5, s5: 18.0 },
   { ageGroup: '55-59', gender: 1, s1: -11.2, s2: -6.2, s3: 1.8, s4: 7.3, s5: 13.9 },
-  // [ERRATA] 55-59女：2分"0.7-5.7"与1分上限"0.8"冲突，取 s2=0.9
-  { ageGroup: '55-59', gender: 0, s1: -6.6, s2: 0.9, s3: 5.8, s4: 11.2, s5: 17.8 },
+  // [ERRATA-FIXED] 国民PDF印刷丢失负号："-0.8/-0.7"错印为"0.8/0.7"
+  // 铁路标准（表15）明确：1分=-6.6~-0.8，2分=-0.7~5.7，故 s2=-0.7
+  { ageGroup: '55-59', gender: 0, s1: -6.6, s2: -0.7, s3: 5.8, s4: 11.2, s5: 17.8 },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -628,7 +632,9 @@ export const REACTION_TIME: DescendingScoreRow[] = [
   { ageGroup: '20-24', gender: 1, s1max: 0.69, s2max: 0.60, s3max: 0.49, s4max: 0.43, s5max: 0.39 },
   { ageGroup: '20-24', gender: 0, s1max: 0.79, s2max: 0.65, s3max: 0.52, s4max: 0.45, s5max: 0.40 },
   { ageGroup: '25-29', gender: 1, s1max: 0.73, s2max: 0.62, s3max: 0.51, s4max: 0.44, s5max: 0.39 },
-  { ageGroup: '25-29', gender: 0, s1max: 0.82, s2max: 0.69, s3max: 0.55, s4max: 0.47, s5max: 0.42 },
+  // 铁路标准（表16）确认：25-29女 s2max=0.68，消除国民标准1/2分共享边界0.69的歧义
+  // 国民PDF: 1分"0.82-0.69"，2分"0.69-0.56" → 0.69归属不明；铁路标准明确2分起于0.68
+  { ageGroup: '25-29', gender: 0, s1max: 0.82, s2max: 0.68, s3max: 0.55, s4max: 0.47, s5max: 0.42 },
   { ageGroup: '30-34', gender: 1, s1max: 0.76, s2max: 0.65, s3max: 0.52, s4max: 0.46, s5max: 0.41 },
   { ageGroup: '30-34', gender: 0, s1max: 0.86, s2max: 0.70, s3max: 0.57, s4max: 0.49, s5max: 0.43 },
   { ageGroup: '35-39', gender: 1, s1max: 0.78, s2max: 0.66, s3max: 0.54, s4max: 0.47, s5max: 0.41 },
