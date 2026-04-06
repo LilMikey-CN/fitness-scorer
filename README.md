@@ -8,8 +8,27 @@ A desktop application for scoring physical fitness assessments based on the [*Na
 
 > **[中文版本](#中文版本)** is available below.
 
-<!-- TODO: Add screenshot here -->
-<!-- ![Screenshot](docs/screenshot.png) -->
+### Manual Entry
+
+<p align="center">
+  <img src="docs/images/manual_input1.png" alt="Manual Entry - Basic Info" width="600" />
+  <br/>
+  <em>Step 1: Enter basic information</em>
+</p>
+
+<p align="center">
+  <img src="docs/images/manual_input2.png" alt="Manual Entry - Metrics & Scoring" width="600" />
+  <br/>
+  <em>Step 2: Fill in metrics with real-time scoring</em>
+</p>
+
+### Batch Import
+
+<p align="center">
+  <img src="docs/images/batch_input1.png" alt="Batch Import" width="600" />
+  <br/>
+  <em>Upload, preview, and export scored results</em>
+</p>
 
 ---
 
@@ -208,8 +227,27 @@ This project is proprietary. All rights reserved.
 
 基于[《国民体质测定标准》（成年人部分）](http://www.sport.gov.cn/)（国家体育总局，2003 年发布）开发的桌面评分应用。支持对 20–59 岁成年人的 10 项体质指标进行逐项评分与综合评级。
 
-<!-- TODO: 在此添加截图 -->
-<!-- ![截图](docs/screenshot.png) -->
+### 手动录入
+
+<p align="center">
+  <img src="docs/images/manual_input1.png" alt="手动录入 - 基本信息" width="600" />
+  <br/>
+  <em>步骤 1：填写基本信息</em>
+</p>
+
+<p align="center">
+  <img src="docs/images/manual_input2.png" alt="手动录入 - 指标与评分" width="600" />
+  <br/>
+  <em>步骤 2：录入指标，实时查看评分</em>
+</p>
+
+### 批量导入
+
+<p align="center">
+  <img src="docs/images/batch_input1.png" alt="批量导入" width="600" />
+  <br/>
+  <em>上传文件、预览数据、导出评分结果</em>
+</p>
 
 ---
 
